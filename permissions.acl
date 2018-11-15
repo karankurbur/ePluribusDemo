@@ -35,3 +35,18 @@ rule TempVerifier {
     resource: "**"
     action: ALLOW
 }
+rule TempVerifier1 {
+    description: "verifier"
+    participant: "org.example.empty.EndUser"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule TempVerifier2 {
+    description: "verifier"
+    participant: "org.example.empty.ServiceProvider"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}

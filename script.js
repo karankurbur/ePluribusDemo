@@ -61,31 +61,55 @@ async function VerifierValidate(data) {
  */
 
 async function ServiceProviderVerify(data) {
-    var hash = MD5(data.dataURL);
+    var hash = MD5(data.data);
     var me = getCurrentParticipant();
-     var ns = 'org.example.empty';
-     var factory = getFactory();
+    var ns = 'org.example.empty';
+    var factory = getFactory();
 
-    // const registery = await getAssetRegistry(ns + '.Credential');
-    // const allCreds = await registery.getAll();
-    // console.log(allCreds);
-    // var found = false;
-    // for(var i = 0; i < allCreds.length; i++) {
-    //     if(allCreds[i].dataHash == hash && allCreds[i].valid) {
-    //         console.log("Found hash");
-    //         found = true;
-    //     }
-    // }
+    const registery = await getAssetRegistry('org.example.empty' + '.Credential');
+    const allCreds = await registery.getAll();
+    console.log(allCreds.length + "");
+    var found = false;
+    var verifier;
+    var cost = 0;
+    for (var i = 0; i < allCreds.length; i++) {
+        if (allCreds[i].dataHash == hash && allCreds[i].valid) {
+            console.log("Found hash");
+            found = true;
+            cost = allCreds[i].price;
+            verifier = allCreds[i].verifier.getIdentifier();
 
-    if(found) {
+            //console.log(allCreds[i].verifier.getIdentifier());
+        }
+    }
+
+    // console.log(me.balance);
+    // console.log(verifier);
+    // console.log(cost);
+
+    if (found && me.balance >= cost) {
+    //if (found) {
+        me.balance -= cost;
+        const serviceRegistery = await getParticipantRegistry(ns + '.ServiceProvider');
+        const verifierRegistery = await getParticipantRegistry(ns + '.Verifier');
+        var ver = await verifierRegistery.get(verifier); 
+
+        //console.log(ver);
+
+        ver.balance += cost;
+        console.log(ver);
+        await serviceRegistery.update(me);
+        await verifierRegistery.update(ver);
+
+
         const verifiedRegistery = await getAssetRegistry(ns + '.VerifiedUser');
         var asset = factory.newResource('org.example.empty', 'VerifiedUser', data.username);
         asset.definition = data.description;
-         asset.user = me;
-    
-        console.log(asset);
-         await verifiedRegistery.add(asset);
-    
+        asset.user = me;
+
+        //console.log(asset);
+        await verifiedRegistery.add(asset);
+
     }
 }
 
