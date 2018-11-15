@@ -28,6 +28,24 @@ rule NetworkAdminSystem {
     action: ALLOW
 }
 
+rule OwnRecordFullAccess{
+    description:"Only allow freshcred"
+	  participant(p):"org.example.empty.User"
+ 	  operation: READ
+    resource(r):"org.example.empty.FreshCredential"
+  	condition:(r.verifier !== p.getIdentifier())
+  	action: DENY
+}
+
+rule verifiedUser{
+    description:"Only allow verifieduser"
+	  participant(p):"org.example.empty.User"
+ 	  operation: READ
+    resource(r):"org.example.empty.VerifiedUser"
+  	condition:(r.ownedServiceProvider !== p.getIdentifier())
+  	action: DENY
+}
+
 rule TempVerifier {
     description: "verifier"
     participant: "org.example.empty.Verifier"
@@ -50,3 +68,4 @@ rule TempVerifier2 {
     resource: "**"
     action: ALLOW
 }
+

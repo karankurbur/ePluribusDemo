@@ -47,7 +47,7 @@ asset FreshCredential identified by credId{
 asset VerifiedUser identified by username {
   o String username
   o String definition 
-  --> User user
+  o String ownedServiceProvider
 }
 
 transaction SendDataToVerifier{

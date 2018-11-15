@@ -93,19 +93,16 @@ async function ServiceProviderVerify(data) {
         const serviceRegistery = await getParticipantRegistry(ns + '.ServiceProvider');
         const verifierRegistery = await getParticipantRegistry(ns + '.Verifier');
         var ver = await verifierRegistery.get(verifier); 
-
         //console.log(ver);
-
         ver.balance += cost;
         console.log(ver);
         await serviceRegistery.update(me);
         await verifierRegistery.update(ver);
 
-
         const verifiedRegistery = await getAssetRegistry(ns + '.VerifiedUser');
         var asset = factory.newResource('org.example.empty', 'VerifiedUser', data.username);
         asset.definition = data.description;
-        asset.user = me;
+        asset.ownedServiceProvider = me.getIdentifier();
 
         //console.log(asset);
         await verifiedRegistery.add(asset);
