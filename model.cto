@@ -1,0 +1,70 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace org.example.empty
+
+abstract participant User identified by username {
+ 	o String username
+    o Double balance
+}
+participant Verifier extends User {
+  
+}
+
+participant EndUser extends User {
+
+}
+
+participant ServiceProvider extends User {
+
+}
+
+asset Credential identified by id {
+  	o String id
+ 	o Boolean valid
+    --> Verifier verifier
+    o String dataHash
+    o Double price
+}
+
+asset FreshCredential identified by credId{
+  o String credId
+	o String dataURL
+  o String verifier
+}
+
+asset VerifiedUser identified by username {
+  o String username
+  o String definition 
+  --> User user
+}
+
+transaction SendDataToVerifier{
+ 	o String dataURL
+  o String verifier
+}
+
+transaction VerifierValidate {
+	o Boolean verified
+  o String credId
+  o Double price
+}
+
+transaction ServiceProviderVerify {
+    o String username
+   	o String data
+    o String description
+}
+
+//verifier uploads verified data -> includes data + amount
