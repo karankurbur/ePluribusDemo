@@ -32,7 +32,7 @@ rule OwnRecordFullAccess{
     description:"Only allow freshcred"
 	  participant(p):"org.example.empty.User"
  	  operation: READ
-    resource(r):"org.example.empty.FreshCredential"
+    resource(r):"org.example.empty.UnverifiedCredential"
   	condition:(r.verifier !== p.getIdentifier())
   	action: DENY
 }

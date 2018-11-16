@@ -13,9 +13,9 @@ async function sendDataToVerifier(data) {
 
     var ns = 'org.example.empty';
     var me = getCurrentParticipant();
-    const registery = await getAssetRegistry(ns + '.FreshCredential');
+    const registery = await getAssetRegistry(ns + '.UnverifiedCredential');
     var factory = getFactory();
-    var asset = factory.newResource('org.example.empty', 'FreshCredential', uuid());
+    var asset = factory.newResource('org.example.empty', 'UnverifiedCredential', uuid());
     // asset.credId = uuid();
     asset.dataURL = data.dataURL;
     asset.verifier = data.verifier;
@@ -33,7 +33,7 @@ async function VerifierValidate(data) {
 
     var ns = 'org.example.empty';
     var me = getCurrentParticipant();
-    const registery = await getAssetRegistry(ns + '.FreshCredential');
+    const registery = await getAssetRegistry(ns + '.UnverifiedCredential');
     const updatedRegistery = await getAssetRegistry(ns + '.Credential');
     const veriferData = await registery.get(data.credId);
     var asset = factory.newResource('org.example.empty', 'Credential', uuid());
