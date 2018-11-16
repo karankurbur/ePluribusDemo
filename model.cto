@@ -19,7 +19,7 @@ abstract participant User identified by username {
     o Double balance
 }
 participant Verifier extends User {
-  
+  o Double reputation
 }
 
 participant EndUser extends User {
@@ -66,6 +66,16 @@ transaction ServiceProviderVerify {
     o String username
    	o String data
     o String description
+    o String minimumReputation
 }
 
-//verifier uploads verified data -> includes data + amount
+transaction uploadVerifiedData {
+  o String[] data
+  o Double[] prices
+  o Boolean[] valid
+}
+
+transaction updateReputation {
+  
+}
+

@@ -65,36 +65,40 @@ async function ServiceProviderVerify(data) {
     var me = getCurrentParticipant();
     var ns = 'org.example.empty';
     var factory = getFactory();
+    const verifierregistery = await getParticipantRegistry('org.example.empty' + '.Verifier');
 
     const registery = await getAssetRegistry('org.example.empty' + '.Credential');
     const allCreds = await registery.getAll();
     console.log(allCreds.length + "");
     var found = false;
     var verifier;
-    var cost = 0;
+    var lowestCost = 1000000;
+
     for (var i = 0; i < allCreds.length; i++) {
         if (allCreds[i].dataHash == hash && allCreds[i].valid) {
-            console.log("Found hash");
-            found = true;
-            cost = allCreds[i].price;
-            verifier = allCreds[i].verifier.getIdentifier();
+            verifier2 = allCreds[i].verifier.getIdentifier();
 
-            //console.log(allCreds[i].verifier.getIdentifier());
+            var ver = await verifierregistery.get(verifier2);
+            console.log(ver.reputation);
+            if (ver.reputation >= data.minimumReputation && allCreds[i].price <= lowestCost) {
+                found = true;
+                lowestCost = allCreds[i].price;
+                verifier = allCreds[i].verifier.getIdentifier();
+            }
         }
     }
+    console.log(me.balance);
+    console.log(verifier);
+    console.log(lowestCost);
 
-    // console.log(me.balance);
-    // console.log(verifier);
-    // console.log(cost);
-
-    if (found && me.balance >= cost) {
-    //if (found) {
-        me.balance -= cost;
+    if (found && me.balance >= lowestCost) {
+        //if (found) {
+        me.balance -= lowestCost;
         const serviceRegistery = await getParticipantRegistry(ns + '.ServiceProvider');
         const verifierRegistery = await getParticipantRegistry(ns + '.Verifier');
-        var ver = await verifierRegistery.get(verifier); 
+        var ver = await verifierRegistery.get(verifier);
         //console.log(ver);
-        ver.balance += cost;
+        ver.balance += lowestCost;
         console.log(ver);
         await serviceRegistery.update(me);
         await verifierRegistery.update(ver);
@@ -108,6 +112,73 @@ async function ServiceProviderVerify(data) {
         await verifiedRegistery.add(asset);
 
     }
+}
+
+/**
+ * data encrypted form
+ * @param {org.example.empty.uploadVerifiedData} data
+ * @transaction 
+ */
+
+async function uploadVerifiedData(data) {
+    var me = getCurrentParticipant();
+    var ns = 'org.example.empty';
+    var factory = getFactory();
+
+    const registery = await getAssetRegistry('org.example.empty' + '.Credential');
+    const allCreds = await registery.getAll();
+
+    if (data.data.length == data.prices.length && data.prices.length == data.valid.length) {
+        for (var i = 0; i < data.data.length; i++) {
+            const updatedRegistery = await getAssetRegistry(ns + '.Credential');
+            var asset = factory.newResource('org.example.empty', 'Credential', uuid());
+            asset.valid = data.valid[i];
+            asset.verifier = me;
+            asset.dataHash = "" + MD5(data.data[i]);
+            asset.price = data.prices[i];
+            console.log(asset);
+            updatedRegistery.add(asset);
+        }
+    }
+}
+
+
+/**
+ * data encrypted form
+ * @param {org.example.empty.updateReputation} data
+ * @transaction 
+ */
+
+async function updateReputation(data) {
+    const registery = await getParticipantRegistry('org.example.empty' + '.Verifier');
+    const allParticipants = await registery.getAll();
+
+    for (var j = 0; j < allParticipants.length; j++) {
+        var me = allParticipants[j];
+        var ns = 'org.example.empty';
+        var factory = getFactory();
+        const registery2 = await getAssetRegistry('org.example.empty' + '.Credential');
+        const allCreds = await registery2.getAll();
+        var count = 0;
+        for (var i = 0; i < allCreds.length; i++) {
+            console.log(allCreds[i].verifier);
+            if (allCreds[i].verifier.getIdentifier() == me.getIdentifier()) {
+                //console.log('worked');
+                if (allCreds[i].valid) {
+                    count++;
+                } else {
+                    count += 0.5;
+                }
+            }
+        }
+        // console.log(count);
+        // console.log(me);
+        me.reputation = count;
+        await registery.update(me);
+    }
+
+
+
 }
 
 function uuid() {
