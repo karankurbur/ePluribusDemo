@@ -16,10 +16,10 @@ namespace org.example.empty
 
 abstract participant User identified by username {
  	o String username
-    o Double balance
+  o Double balance
 }
+
 participant Verifier extends User {
-  o Double reputation
 }
 
 participant EndUser extends User {
@@ -30,25 +30,56 @@ participant ServiceProvider extends User {
 
 }
 
-asset Credential identified by id {
-  	o String id
- 	  o Boolean valid
-    --> Verifier verifier
-    o String dataHash
-    o Double price
-}
-
-
+//off chain
 asset UnverifiedCredential identified by credId{
   o String credId
 	o String dataURL
   o String verifier
+  o String sender
 }
 
+//only see your own keys
+asset Key identified by keyId{
+  o String keyId
+  o String x
+  o String y
+  o String d optional
+  o Boolean public
+  o String owner
+}
+
+//off chain
+asset CredentialForEndUserLocal identified by credId {
+  o String credId
+  o String attestation
+  o Integer[] signatureArray
+  o String verifierDid
+  o String owner
+}
+
+//off chain
+asset CredentialForServiceProvider identified by credId {
+  o String credId
+  o String attestation
+  o String verifierSignature
+  o String verifierDid
+  o String senderSignature
+  o String senderDid
+}
+
+//off chain
 asset VerifiedUser identified by username {
   o String username
   o String definition 
   o String ownedServiceProvider
+}
+
+//on chain
+asset Did identified by Did{
+  o String Did
+  o Key publicKey
+  o String organization
+  o Boolean trusted
 }
 
 transaction SendDataToVerifier{
@@ -56,26 +87,24 @@ transaction SendDataToVerifier{
   o String verifier
 }
 
+//sign with user key and send
+transaction SendCredentialToServiceProvider {
+  o String credId
+}
+
+//sign and create verified credential 
 transaction VerifierValidate {
 	o Boolean verified
   o String credId
-  o Double price
+  o String attestation
 }
 
-transaction ServiceProviderVerify {
-    o String username
-   	o String data
-    o String description
-    o String minimumReputation
+transaction CreatekeyPair {
+
 }
 
-transaction uploadVerifiedData {
-  o String[] data
-  o Double[] prices
-  o Boolean[] valid
+transaction CreateDid {
+  o String publicKey
+  o String organization
+  o Boolean trusted
 }
-
-transaction updateReputation {
-  
-}
-

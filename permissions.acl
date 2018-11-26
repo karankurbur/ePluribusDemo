@@ -31,28 +31,12 @@ rule NetworkAdminSystem {
 rule OwnRecordFullAccess{
     description:"Only allow freshcred"
 	  participant(p):"org.example.empty.User"
- 	  operation: READ
-    resource(r):"org.example.empty.UnverifiedCredential"
-  	condition:(r.verifier !== p.getIdentifier())
+ 	  operation: ALL 
+    resource(r):"org.example.empty.Key"
+  	condition:(r.owner !== p.getIdentifier())
   	action: DENY
 }
 
-rule verifiedUser{
-    description:"Only allow verifieduser"
-	  participant(p):"org.example.empty.User"
- 	  operation: READ
-    resource(r):"org.example.empty.VerifiedUser"
-  	condition:(r.ownedServiceProvider !== p.getIdentifier())
-  	action: DENY
-}
-
-rule TempVerifier {
-    description: "verifier"
-    participant: "org.example.empty.Verifier"
-    operation: ALL
-    resource: "**"
-    action: ALLOW
-}
 rule TempVerifier1 {
     description: "verifier"
     participant: "org.example.empty.EndUser"
@@ -60,7 +44,6 @@ rule TempVerifier1 {
     resource: "**"
     action: ALLOW
 }
-
 rule TempVerifier2 {
     description: "verifier"
     participant: "org.example.empty.ServiceProvider"
@@ -68,4 +51,84 @@ rule TempVerifier2 {
     resource: "**"
     action: ALLOW
 }
+rule TempVerifier3 {
+    description: "verifier"
+    participant: "org.example.empty.Verifier"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+
+
+// rule OwnRecordFullAccess1{
+//     description:"Only allow freshcred"
+// 	  participant(p):"org.example.empty.User"
+//  	  operation: ALL 
+//     resource(r):"org.example.empty.CreatekeyPair"
+//   	condition:(true)
+//   	action: ALLOW
+// }
+
+// rule OwnRecordFullAccess2{
+//     description:"Only allow freshcred"
+// 	  participant(p):"org.example.empty.User"
+//  	  operation: ALL 
+//     resource(r):"org.hyperledger.composer.system.Network"
+//   	condition:(true)
+//   	action: ALLOW
+// }
+
+
+
+// rule verifiedUser{
+//     description:"Only allow verifieduser"
+// 	  participant(p):"org.example.empty.User"
+//  	  operation: READ
+//     resource(r):"org.example.empty.VerifiedUser"
+//   	condition:(r.ownedServiceProvider !== p.getIdentifier())
+//   	action: DENY
+// }
+
+// rule TempVerifier {
+//     description: "verifier"
+//     participant: "org.example.empty.Verifier"
+//     operation: ALL
+//     resource: "**"
+//     action: ALLOW
+//}
+
+// rule TempVerifier1 {
+//     description: "verifier"
+//     participant: "org.example.empty.EndUser"
+//     operation: ALL
+//     resource: "org.hyperledger.composer.system"
+//     action: ALLOW
+// }
+
+// rule TempVerifier2 {
+//     description: "verifier"
+//     participant: "org.example.empty.EndUser"
+//     operation: ALL
+//     resource: "org.example.empty.CreatekeyPair"
+//     action: ALLOW
+// }
+
+// rule TempVerifier3 {
+//     description: "verifier"
+//     participant: "org.example.empty.EndUser"
+//     operation: ALL
+//     resource: "org.example.empty.Key"
+//     action: ALLOW
+// }
+
+
+
+// rule TempVerifier2 {
+//     description: "verifier"
+//     participant: "org.example.empty.ServiceProvider"
+//     operation: ALL
+//     resource: "**"
+//     action: ALLOW
+// }
 
