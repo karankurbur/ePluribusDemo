@@ -102,9 +102,6 @@ async function VerifierValidate(data) {
         true, //whether the key is extractable (i.e. can be used in exportKey)
         ["verify"] //"verify" for public key import, "sign" for private key imports
     );
-
-    //console.log(privateKey);
-
     var signedAttestation = await window.crypto.subtle.sign(
         {
             name: "ECDSA",
@@ -113,47 +110,28 @@ async function VerifierValidate(data) {
         privateKey, //from generateKey or importKey above
         utf8AbFromStr(data.attestation) //ArrayBuffer of data you want to sign
     );
-
-    //console.log(strFromUtf8Ab(signedAttestation));
-
-
-
-
-
     var asset = factory.newResource('org.example.empty', 'CredentialForEndUserLocal', uuid());
     asset.attestation = data.attestation;
-
-
     var uint8View = new Uint8Array(signedAttestation);
     console.log(uint8View);
     var sig = [];
-    for(var i = 0; i < uint8View.length; i++) {
+    for (var i = 0; i < uint8View.length; i++) {
         sig.push(uint8View[i]);
     }
-
-    console.log(sig);
-
     asset.signatureArray = sig;
-
     asset.verifierDid = did; //find did that matches verifier publickey
     asset.owner = veriferData.sender;
-
     console.log(asset);
-
-
-    var verified = await window.crypto.subtle.verify(
-        {
-            name: "ECDSA",
-            hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-        publicKey, //from generateKey or importKey above
-        new Uint8Array(sig), //ArrayBuffer of the signature
-        utf8AbFromStr(data.attestation) //ArrayBuffer of the data
-    )
-
-    console.log("Signature is correct " + verified);
-
-
+    // var verified = await window.crypto.subtle.verify(
+    //     {
+    //         name: "ECDSA",
+    //         hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+    //     },
+    //     publicKey, //from generateKey or importKey above
+    //     new Uint8Array(sig), //ArrayBuffer of the signature
+    //     utf8AbFromStr(data.attestation) //ArrayBuffer of the data
+    // )
+    // console.log("Signature is correct " + verified);
     await credentialRegistery.add(asset);
     // }
 }
@@ -230,6 +208,105 @@ async function CreatekeyPair() {
 
 
 }
+
+
+
+
+/**
+ * //check if hash is already in credential list
+
+ * @param {org.example.empty.SendCredentialToServiceProvider} data
+ * @transaction
+ */
+async function SendCredentialToServiceProvider(data) {
+    var factory = getFactory();
+    var ns = 'org.example.empty';
+    var me = getCurrentParticipant();
+
+
+
+    const credentialRegistery = await getAssetRegistry(ns + '.CredentialForEndUserLocal');
+    const credToShare = await credentialRegistery.get(data.credId);
+    console.log(credToShare);
+
+
+    const keyRegistery = await getAssetRegistry(ns + '.Key');
+    const allKeys = await keyRegistery.getAll();
+    const didRegistery = await getAssetRegistry(ns + '.Did');
+    const dids = await didRegistery.getAll();
+
+
+    var tempKey;
+    var publicKeyReference;
+    for (var i = 0; i < allKeys.length; i++) {
+        if (allKeys[i].public === false) {
+            tempKey = allKeys[i];
+        } else {
+            publicKeyReference = allKeys[i];
+        }
+    }
+
+    var did; //sender did
+    for (var i = 0; i < dids.length; i++) {
+        if (dids[i].publicKey.keyId == publicKeyReference.keyId) {
+            did = dids[i];
+        }
+    }
+    
+    var privateKey = await window.crypto.subtle.importKey(
+        "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+        {   //this is an example jwk key, other key types are Uint8Array objects
+            kty: "EC",
+            crv: "P-256",
+            x: tempKey.x,
+            y: tempKey.y,
+            d: tempKey.d,
+            ext: true,
+        },
+        {   //these are the algorithm options
+            name: "ECDSA",
+            namedCurve: "P-256", //can be "P-256", "P-384", or "P-521"
+        },
+        true, //whether the key is extractable (i.e. can be used in exportKey)
+        ["sign"] //"verify" for public key import, "sign" for private key imports
+    );
+
+    var signedAttestation = await window.crypto.subtle.sign(
+        {
+            name: "ECDSA",
+            hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+        },
+        privateKey, //from generateKey or importKey above
+        utf8AbFromStr(credToShare.attestation) //ArrayBuffer of data you want to sign
+    );
+
+
+    var asset = factory.newResource('org.example.empty', 'CredentialForServiceProvider', uuid());
+    asset.attestation = credToShare.attestation;
+    var uint8View = new Uint8Array(signedAttestation);
+    console.log(uint8View);
+    var sig = [];
+    for (var i = 0; i < uint8View.length; i++) {
+        sig.push(uint8View[i]);
+    }
+    asset.senderSignature = sig;
+    asset.senderDid = did; //find did that matches verifier publickey
+    asset.owner = data.serviceProvider;
+    asset.verifierSignature = credToShare.signatureArray;
+    asset.verifierDid = credToShare.verifierDid;
+    
+    console.log(asset);
+
+    const serviceProviderCredentialRegistery = await getAssetRegistry(ns + '.CredentialForServiceProvider');
+    serviceProviderCredentialRegistery.add(asset);
+
+
+
+}
+
+
+
+
 
 function utf8AbFromStr(str) {
     var strUtf8 = unescape(encodeURIComponent(str));

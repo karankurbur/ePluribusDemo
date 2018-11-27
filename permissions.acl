@@ -28,7 +28,26 @@ rule NetworkAdminSystem {
     action: ALLOW
 }
 
-rule OwnRecordFullAccess{
+
+rule OwnRecordFullAccess5{
+    description:"Only allow freshcred"
+	  participant(p):"org.example.empty.User"
+ 	  operation: READ 
+    resource(r):"org.example.empty.CredentialForEndUserLocal"
+  	condition:(r.owner !== p.getIdentifier())
+  	action: DENY
+}
+
+rule OwnRecordFullAccess6{
+    description:"Only allow freshcred"
+	  participant(p):"org.example.empty.User"
+ 	  operation: READ 
+    resource(r):"org.example.empty.CredentialForServiceProvider"
+  	condition:(r.owner !== p.getIdentifier())
+  	action: DENY
+}
+
+rule OwnRecordFullAccess109{
     description:"Only allow freshcred"
 	  participant(p):"org.example.empty.User"
  	  operation: ALL 
@@ -36,6 +55,16 @@ rule OwnRecordFullAccess{
   	condition:(r.owner !== p.getIdentifier())
   	action: DENY
 }
+
+rule OwnRecordFullAccess{
+    description:"Only allow freshcred"
+	  participant(p):"org.example.empty.User"
+ 	  operation: READ
+    resource(r):"org.example.empty.UnverifiedCredential"
+  	condition:(r.verifier !== p.getIdentifier())
+  	action: DENY
+}
+
 
 rule TempVerifier1 {
     description: "verifier"

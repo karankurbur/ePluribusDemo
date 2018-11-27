@@ -53,7 +53,7 @@ asset CredentialForEndUserLocal identified by credId {
   o String credId
   o String attestation
   o Integer[] signatureArray
-  o String verifierDid
+  o Did verifierDid
   o String owner
 }
 
@@ -61,17 +61,11 @@ asset CredentialForEndUserLocal identified by credId {
 asset CredentialForServiceProvider identified by credId {
   o String credId
   o String attestation
-  o String verifierSignature
-  o String verifierDid
-  o String senderSignature
-  o String senderDid
-}
-
-//off chain
-asset VerifiedUser identified by username {
-  o String username
-  o String definition 
-  o String ownedServiceProvider
+  o Integer[] verifierSignature
+  o Did verifierDid
+  o Integer[] senderSignature
+  o Did senderDid
+  o String owner
 }
 
 //on chain
@@ -90,6 +84,7 @@ transaction SendDataToVerifier{
 //sign with user key and send
 transaction SendCredentialToServiceProvider {
   o String credId
+  o String serviceProvider
 }
 
 //sign and create verified credential 
@@ -101,10 +96,4 @@ transaction VerifierValidate {
 
 transaction CreatekeyPair {
 
-}
-
-transaction CreateDid {
-  o String publicKey
-  o String organization
-  o Boolean trusted
 }
