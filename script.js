@@ -3,8 +3,10 @@
  */
 
 /**
- * 
+ * //Send data offchain to verifier
  * @param {org.example.empty.SendDataToVerifier} data
+ * dataUrl: url of data to be sent
+ * verifier: identifier of verifier to be sent to
  * @transaction
  */
 
@@ -24,9 +26,13 @@ async function sendDataToVerifier(data) {
 }
 
 /**
- * //check if hash is already in credential list
+ * //sign and create verified credential 
+
 
  * @param {org.example.empty.VerifierValidate} data
+ * verified: true if valid credential, will sign attestation with private key
+ * credId: credential id that is being validated
+ * attestation: statement regarding unverified claim. Only looked at if verified is true
  * @transaction
  */
 async function VerifierValidate(data) {
@@ -44,10 +50,6 @@ async function VerifierValidate(data) {
     const allKeys = await keyRegistery.getAll();
     const didRegistery = await getAssetRegistry(ns + '.Did');
     const dids = await didRegistery.getAll();
-
-
-
-
     var tempKey;
     var publicKeyReference;
     for (var i = 0; i < allKeys.length; i++) {
@@ -137,7 +139,7 @@ async function VerifierValidate(data) {
 }
 
 /**
- * //check if hash is already in credential list
+ * //Saves keypair and generates did that stores public key
 
  * @param {org.example.empty.CreatekeyPair} data
  * @transaction
@@ -192,29 +194,21 @@ async function CreatekeyPair() {
     } else {
         newDid.trusted = false;
     }
-
-
     newPrivateKey.x = public.x;
     newPrivateKey.y = public.y;
     newPrivateKey.d = private.d;
     newPrivateKey.public = false;
     newPrivateKey.owner = me.username;
-
-
     console.log(newDid);
     await didRegistery.add(newDid);
     await keyRegistery.add(newPrivateKey);
     await keyRegistery.add(newPublicKey);
-
-
 }
 
 
 
-
 /**
- * //check if hash is already in credential list
-
+ * can only view received creds, off chain
  * @param {org.example.empty.SendCredentialToServiceProvider} data
  * @transaction
  */
@@ -222,9 +216,7 @@ async function SendCredentialToServiceProvider(data) {
     var factory = getFactory();
     var ns = 'org.example.empty';
     var me = getCurrentParticipant();
-
-
-
+    
     const credentialRegistery = await getAssetRegistry(ns + '.CredentialForEndUserLocal');
     const credToShare = await credentialRegistery.get(data.credId);
     console.log(credToShare);
@@ -299,13 +291,7 @@ async function SendCredentialToServiceProvider(data) {
 
     const serviceProviderCredentialRegistery = await getAssetRegistry(ns + '.CredentialForServiceProvider');
     serviceProviderCredentialRegistery.add(asset);
-
-
-
 }
-
-
-
 
 
 function utf8AbFromStr(str) {

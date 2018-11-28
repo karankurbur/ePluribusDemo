@@ -38,44 +38,45 @@ asset UnverifiedCredential identified by credId{
   o String sender
 }
 
-//only see your own keys
+//only see your own keys, still offchain
 asset Key identified by keyId{
   o String keyId
   o String x
   o String y
   o String d optional
   o Boolean public
-  o String owner
+  o String owner //only used to restrict visibility to other participants on network
 }
 
-//off chain
+//can only seen your own creds, off chain
 asset CredentialForEndUserLocal identified by credId {
   o String credId
-  o String attestation
+  o String attestation //statement regarding claim
   o Integer[] signatureArray
-  o Did verifierDid
-  o String owner
+  o Did verifierDid //Links verifier did that contains public key to check signature
+  o String owner //only used to restrict visibility to other participants on network
 }
 
-//off chain
+//can only view received creds, off chain
 asset CredentialForServiceProvider identified by credId {
   o String credId
-  o String attestation
-  o Integer[] verifierSignature
-  o Did verifierDid
+  o String attestation //statement regarding claim
+  o Integer[] verifierSignature  //signature is stored as array of uint8
+  o Did verifierDid 
   o Integer[] senderSignature
   o Did senderDid
-  o String owner
+  o String owner //only used to restrict visibility to other participants on network
 }
 
 //on chain
 asset Did identified by Did{
   o String Did
-  o Key publicKey
-  o String organization
-  o Boolean trusted
+  o Key publicKey //used to verify generated signatures 
+  o String organization //Information about their org
+  o Boolean trusted //true if a verifier that is trusted on the network
 }
 
+//Send data offchain to verifier
 transaction SendDataToVerifier{
  	o String dataURL
   o String verifier
@@ -94,6 +95,7 @@ transaction VerifierValidate {
   o String attestation
 }
 
+//Saves keypair and generates did that stores public key
 transaction CreatekeyPair {
 
 }
