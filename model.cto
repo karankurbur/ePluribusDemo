@@ -30,6 +30,7 @@ participant ServiceProvider extends User {
 
 }
 
+//Onchain verified data
 asset Credential identified by id {
   	o String id
  	  o Boolean valid
@@ -38,30 +39,34 @@ asset Credential identified by id {
     o Double price
 }
 
-
+//Offchain data sent to verifier
 asset UnverifiedCredential identified by credId{
   o String credId
 	o String dataURL
   o String verifier
 }
 
+//Offchain user data for service provider
 asset VerifiedUser identified by username {
   o String username
   o String definition 
   o String ownedServiceProvider
 }
 
+//Send data offchain to verifier
 transaction SendDataToVerifier{
  	o String dataURL
   o String verifier
 }
 
+//Validate or deny data. List of a set price
 transaction VerifierValidate {
 	o Boolean verified
   o String credId
   o Double price
 }
 
+//Checks offchain recieved user data with hashes on blockchain for match
 transaction ServiceProviderVerify {
     o String username
    	o String data
@@ -69,12 +74,14 @@ transaction ServiceProviderVerify {
     o String minimumReputation
 }
 
+//Allows verifiers to upload large amounts of validated data
 transaction uploadVerifiedData {
   o String[] data
   o Double[] prices
   o Boolean[] valid
 }
 
+//Updates reputation of verifiers based on number of credentials on network
 transaction updateReputation {
   
 }

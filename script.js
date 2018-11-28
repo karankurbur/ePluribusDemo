@@ -3,8 +3,10 @@
  */
 
 /**
- * 
+ * //Send data offchain to verifier
  * @param {org.example.empty.SendDataToVerifier} data
+ * dataUrl: url of data to be sent
+ * verifier: identifier of verifier to be sent to
  * @transaction
  */
 
@@ -26,7 +28,9 @@ async function sendDataToVerifier(data) {
  * //check if hash is already in credential list
 
  * @param {org.example.empty.VerifierValidate} data
- * @transaction
+ * verified: true if valid credential, will sign attestation with private key
+ * credId: credential id that is being validated
+ * price: amount to list credential for
  */
 async function VerifierValidate(data) {
     var factory = getFactory();
@@ -53,10 +57,13 @@ async function VerifierValidate(data) {
 }
 
 /**
- * //check if hash is already in credential list or hashes
- * need to add payment to verifier
- * add check cheapest offer
+ * checks if hash is already in credential list or hashes
+ * sends payment to cheapest verifier over a certain reputation
  * @param {org.example.empty.ServiceProviderVerify} data
+ * username: what to store credential under
+ * data: offchain data recieved
+ * description: what to describe credential with
+ * mimimumReputation: min. reputation for valid verifier
  * @transaction
  */
 
@@ -115,9 +122,11 @@ async function ServiceProviderVerify(data) {
 }
 
 /**
- * data encrypted form
+ * upload verified user data
  * @param {org.example.empty.uploadVerifiedData} data
- * @transaction 
+ * data[]: list of user data, unencrypted
+ * prices[]: list of prices
+ * valid[]: true or false for each user data
  */
 
 async function uploadVerifiedData(data) {
@@ -144,7 +153,7 @@ async function uploadVerifiedData(data) {
 
 
 /**
- * data encrypted form
+ * updates reputation of all verifiers
  * @param {org.example.empty.updateReputation} data
  * @transaction 
  */
